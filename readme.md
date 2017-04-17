@@ -27,7 +27,7 @@ Twitter Creds
 1. Assuming you have Spark 1.6 and Mahout 0.13.0 installed...
 2. And you have set `JAVA_HOME`, `MAHOUT_HOME`, and `SPARK_HOME` environment variables...
 3. Open Mahout's Spark Shell with `MAHOUT_HOME/bin/mahout spark-shell`
-4. Run script `./build-cco.scala` interactively
+4. Run script `./build-cco.scala` interactively starting at line 30
 5. ^^ Change `baseDir` on line 32 to point to the directory you specified in Step 2, item 2 (the `DATA_DIR` from the python script)
 
 Matrices will be output to the `baseDir`
