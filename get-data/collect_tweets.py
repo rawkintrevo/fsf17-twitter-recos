@@ -1,8 +1,8 @@
-#% spark.pyspark
-
-from datetime import datetime, timedelta
+import json
+import os
 import re
-from requests import get  ## Not part of BI install- must install manually
+from requests import get
+
 
 def process_response(r, write_flag = "w"):
     DATA_DIR = "/home/rawkintrevo/gits/ffsf17-twitter-recos/data"
@@ -20,9 +20,10 @@ def process_response(r, write_flag = "w"):
                 ul.write(line + '\n')
             ########################################################################################
             words = [re.sub(r'\W+', '', w).lower() for w in tweet['message']['body'].split()] # list
+            # remove stopwords
             with open(DATA_DIR + "/user-words.csv", write_flag) as uw:
                 for w in words:
-                    if "http" in w:
+                    if "http" in w: # also remove rt
                         continue
                     line = id + "," + w
                     #print "word", line
@@ -52,24 +53,15 @@ def process_response(r, write_flag = "w"):
             print e
             print tweet
 
-
-process_response(r)
 # Creds for IBM Twitter Service
 
-creds = {
-    "credentials": {
-        "username": "d01ec50e-f5e4-4574-909d-d1c0e9b4f586",
-        "password": "vcUW8bidL6",
-        "host": "cdeservice.mybluemix.net",
-        "port": 443,
-        "url": "https://d01ec50e-f5e4-4574-909d-d1c0e9b4f586:vcUW8bidL6@cdeservice.mybluemix.net"
-    }
-}
+json_data=open("../conf/credentials.json").read()
+creds = json.loads(json_data)['IBMtwitterInsights']
 
 endpoint = "/api/v1/messages/search"
-base_url = "https://%s:%s@cdeservice.mybluemix.net:%i%s" % (creds['credentials']['username'],
-                                                            creds['credentials']['password'],
-                                                            creds['credentials']['port'], endpoint)
+base_url = "https://%s:%s@cdeservice.mybluemix.net:%i%s" % (creds['username'],
+                                                            creds['password'],
+                                                            creds['port'], endpoint)
 payload = {
     'size': 500,  # how many records to fetch
     #   'from' : "", #starting record
@@ -80,7 +72,7 @@ r = get(base_url, payload)
 
 process_response(r)
 
-max_tweets = 500
+max_tweets = 50000 # how many tweets to fetch in total
 tweets_collected = payload['size']
 
 while True:
